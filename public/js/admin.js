@@ -1,10 +1,20 @@
 // Admin Inventory Logic
-let adminKey = localStorage.getItem('showroom_admin_key') || 'admin123';
+let adminKey = sessionStorage.getItem('showroom_admin_key') || localStorage.getItem('showroom_admin_key') || '';
 let allProducts = [];
 
 document.addEventListener('DOMContentLoaded', () => {
   setupAdminEvents();
-  checkAuthAndLoad();
+  
+  if (!adminKey) {
+    // Show auth barrier immediately if not logged in
+    document.getElementById('authOverlay').classList.add('active');
+    setTimeout(() => {
+      const input = document.getElementById('passcodeInput');
+      if (input) input.focus();
+    }, 100);
+  } else {
+    checkAuthAndLoad();
+  }
   
   // Set shareable customer link to current host
   const host = window.location.origin;
@@ -12,15 +22,30 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function setupAdminEvents() {
-  // Login Unlock
-  document.getElementById('btnLogin').addEventListener('click', () => {
-    const key = document.getElementById('passcodeInput').value.trim();
-    if (key) {
-      adminKey = key;
-      localStorage.setItem('showroom_admin_key', key);
-      checkAuthAndLoad();
-    }
-  });
+  // Login Unlock form submit & button
+  const authForm = document.getElementById('authForm');
+  if (authForm) {
+    authForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      handleLogin();
+    });
+  }
+  
+  const btnLogin = document.getElementById('btnLogin');
+  if (btnLogin) {
+    btnLogin.addEventListener('click', (e) => {
+      e.preventDefault();
+      handleLogin();
+    });
+  }
+
+  // Logout button
+  const btnLogout = document.getElementById('btnLogout');
+  if (btnLogout) {
+    btnLogout.addEventListener('click', () => {
+      handleLogout();
+    });
+  }
 
   // Copy customer link button
   document.getElementById('btnCopyLink').addEventListener('click', () => {
@@ -185,7 +210,11 @@ function setupAdminEvents() {
     if (newPasscode) {
       payload.adminPasscode = newPasscode;
       adminKey = newPasscode;
-      localStorage.setItem('showroom_admin_key', newPasscode);
+      if (localStorage.getItem('showroom_admin_key')) {
+        localStorage.setItem('showroom_admin_key', newPasscode);
+      } else {
+        sessionStorage.setItem('showroom_admin_key', newPasscode);
+      }
     }
 
     try {
@@ -207,15 +236,119 @@ function setupAdminEvents() {
   });
 }
 
+// Handle Admin Login
+async function handleLogin() {
+  const input = document.getElementById('passcodeInput');
+  const key = input ? input.value.trim() : '';
+  const authCard = document.getElementById('authCard');
+  const authError = document.getElementById('authError');
+  const btn = document.getElementById('btnLogin');
+  const remember = document.getElementById('rememberMeCheck') ? document.getElementById('rememberMeCheck').checked : false;
+
+  if (!key) {
+    if (authError) {
+      authError.textContent = 'Please enter your admin passcode.';
+      authError.style.display = 'block';
+    }
+    if (authCard) {
+      authCard.classList.add('shake');
+      setTimeout(() => authCard.classList.remove('shake'), 450);
+    }
+    if (input) input.focus();
+    return;
+  }
+
+  if (btn) {
+    btn.disabled = true;
+    btn.textContent = 'Verifying...';
+  }
+  if (authError) authError.style.display = 'none';
+
+  try {
+    const res = await fetch('/api/admin/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ passcode: key })
+    });
+    const data = await res.json();
+    if (data.success) {
+      adminKey = key;
+      if (remember) {
+        localStorage.setItem('showroom_admin_key', key);
+        sessionStorage.removeItem('showroom_admin_key');
+      } else {
+        sessionStorage.setItem('showroom_admin_key', key);
+        localStorage.removeItem('showroom_admin_key');
+      }
+      document.getElementById('authOverlay').classList.remove('active');
+      if (input) input.value = '';
+      checkAuthAndLoad();
+    } else {
+      if (authError) {
+        authError.textContent = data.message || 'Invalid passcode. Please try again.';
+        authError.style.display = 'block';
+      }
+      if (authCard) {
+        authCard.classList.add('shake');
+        setTimeout(() => authCard.classList.remove('shake'), 450);
+      }
+      if (input) {
+        input.select();
+        input.focus();
+      }
+    }
+  } catch (err) {
+    if (authError) {
+      authError.textContent = 'Login error: ' + err.message;
+      authError.style.display = 'block';
+    }
+  } finally {
+    if (btn) {
+      btn.disabled = false;
+      btn.textContent = 'Unlock Dashboard';
+    }
+  }
+}
+
+// Handle Admin Logout
+function handleLogout() {
+  sessionStorage.removeItem('showroom_admin_key');
+  localStorage.removeItem('showroom_admin_key');
+  adminKey = '';
+  allProducts = [];
+  const tbody = document.getElementById('productTableBody');
+  if (tbody) tbody.innerHTML = '';
+  document.getElementById('authOverlay').classList.add('active');
+  const input = document.getElementById('passcodeInput');
+  if (input) {
+    input.value = '';
+    input.focus();
+  }
+  const authError = document.getElementById('authError');
+  if (authError) authError.style.display = 'none';
+}
+
 // Authentication check & load
 async function checkAuthAndLoad() {
+  if (!adminKey) {
+    document.getElementById('authOverlay').classList.add('active');
+    return;
+  }
+
   try {
     const res = await fetch('/api/admin/products', {
       headers: { 'x-admin-key': adminKey }
     });
     if (res.status === 401) {
+      sessionStorage.removeItem('showroom_admin_key');
+      localStorage.removeItem('showroom_admin_key');
+      adminKey = '';
       document.getElementById('authOverlay').classList.add('active');
-      document.getElementById('authError').style.display = 'block';
+      const authError = document.getElementById('authError');
+      if (authError) {
+        authError.textContent = 'Session invalid or passcode changed. Please log in again.';
+        authError.style.display = 'block';
+      }
       return;
     }
     const data = await res.json();
@@ -226,7 +359,7 @@ async function checkAuthAndLoad() {
       renderTable(data.products);
     }
   } catch (err) {
-    console.error(err);
+    console.error('Failed to load admin products:', err);
   }
 }
 

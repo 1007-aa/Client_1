@@ -113,15 +113,30 @@ app.get('/api/categories', (req, res) => {
 // DEVELOPER / ADMIN API
 // ==========================================
 
-// Authentication helper (simple passcode header or query)
-function checkAuth(req, res, next) {
-  const passcode = req.headers['x-admin-key'] || req.query.key || req.body.key;
+// Authentication helper (passcode validation)
+function getValidAdminPasscode() {
   const settings = store.getSettings();
-  if (passcode === (settings.adminPasscode || 'admin123')) {
+  return process.env.ADMIN_PASSCODE || settings.adminPasscode || 'admin123';
+}
+
+function checkAuth(req, res, next) {
+  const passcode = req.headers['x-admin-key'] || req.query.key || (req.body && req.body.key);
+  const validPasscode = getValidAdminPasscode();
+  if (passcode && passcode === validPasscode) {
     return next();
   }
   return res.status(401).json({ success: false, message: 'Unauthorized: Invalid administrative key' });
 }
+
+// POST /api/admin/login - Verify admin passcode
+app.post('/api/admin/login', (req, res) => {
+  const { passcode } = req.body || {};
+  const validPasscode = getValidAdminPasscode();
+  if (passcode && passcode === validPasscode) {
+    return res.json({ success: true, message: 'Authentication successful' });
+  }
+  return res.status(401).json({ success: false, message: 'Invalid administrative passcode' });
+});
 
 // GET /api/admin/products - List all products (in-stock AND out-of-stock)
 app.get('/api/admin/products', checkAuth, (req, res) => {
