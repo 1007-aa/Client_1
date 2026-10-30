@@ -33,6 +33,11 @@
   box-sizing: border-box;
 }
 
+html, body {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
 body {
   font-family: var(--font-sans);
   background-color: var(--bg-primary);
@@ -75,6 +80,8 @@ body {
   justify-content: space-between;
   align-items: center;
   width: 100%;
+  flex-wrap: wrap;
+  gap: 4px;
 }
 
 .top-bar a {
@@ -103,7 +110,8 @@ header.showroom-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 20px;
+  gap: 12px;
+  flex-wrap: wrap;
 }
 
 .brand-wrapper {
