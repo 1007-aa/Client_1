@@ -403,9 +403,12 @@
       <form id="authForm" onsubmit="return false;">
         <input type="password" id="passcodeInput" class="form-input" placeholder="Enter Admin Passcode" autocomplete="current-password" style="text-align: center; font-size: 1.05rem; letter-spacing: 0.15em; margin-bottom: 12px;" required>
         
-        <div style="display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 18px; font-size: 0.82rem; color: var(--text-muted);">
-          <input type="checkbox" id="rememberMeCheck" style="cursor: pointer; accent-color: var(--primary);">
-          <label for="rememberMeCheck" style="cursor: pointer; user-select: none;">Remember on this browser</label>
+        <div style="display: flex; align-items: center; justify-content: center; gap: 6px; margin-bottom: 18px; font-size: 0.78rem; color: var(--text-muted);">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"></circle>
+            <polyline points="12 6 12 12 16 14"></polyline>
+          </svg>
+          Auto-locks on 15 mins inactivity or when tab is closed
         </div>
 
         <button class="btn btn-gold" style="width: 100%; justify-content: center; padding: 11px 18px;" id="btnLogin" type="submit">Unlock Dashboard</button>

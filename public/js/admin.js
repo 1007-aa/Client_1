@@ -1,10 +1,30 @@
 // Admin Inventory Logic
-let adminKey = sessionStorage.getItem('showroom_admin_key') || localStorage.getItem('showroom_admin_key') || '';
+// Strict security: Auto-logout on 15 minutes inactivity or when browser tab is closed
+const INACTIVITY_TIMEOUT_MS = 15 * 60 * 1000; // 15 minutes
+let inactivityTimer = null;
+let lastActivityTime = Date.now();
+
+// Purge any persistent storage key to ensure closing tab always requires fresh login
+try {
+  localStorage.removeItem('showroom_admin_key');
+} catch (e) {}
+
+// Key is strictly isolated to this browser tab session (sessionStorage)
+let adminKey = sessionStorage.getItem('showroom_admin_key') || '';
 let allProducts = [];
 
 document.addEventListener('DOMContentLoaded', () => {
   setupAdminEvents();
   
+  // Check if saved session has expired due to inactivity
+  const savedLastActivity = parseInt(sessionStorage.getItem('showroom_last_activity') || '0', 10);
+  const now = Date.now();
+
+  if (adminKey && savedLastActivity && (now - savedLastActivity > INACTIVITY_TIMEOUT_MS)) {
+    handleLogout('Session expired due to inactivity. Please log in again.');
+    return;
+  }
+
   if (!adminKey) {
     // Show auth barrier immediately if not logged in
     document.getElementById('authOverlay').classList.add('active');
@@ -13,6 +33,8 @@ document.addEventListener('DOMContentLoaded', () => {
       if (input) input.focus();
     }, 100);
   } else {
+    recordActivity();
+    startInactivityTracker();
     checkAuthAndLoad();
   }
   
@@ -46,6 +68,33 @@ function setupAdminEvents() {
       handleLogout();
     });
   }
+
+  // Activity listeners to reset inactivity timeout
+  const activityEvents = ['mousemove', 'mousedown', 'keydown', 'touchstart', 'scroll'];
+  let activityThrottle = null;
+  activityEvents.forEach((evt) => {
+    window.addEventListener(evt, () => {
+      if (!adminKey) return;
+      if (!activityThrottle) {
+        recordActivity();
+        activityThrottle = setTimeout(() => {
+          activityThrottle = null;
+        }, 2000); // Throttle writes to once every 2 seconds
+      }
+    }, { passive: true });
+  });
+
+  // Check inactivity immediately when tab becomes visible again
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden && adminKey) {
+      const idleTime = Date.now() - lastActivityTime;
+      if (idleTime >= INACTIVITY_TIMEOUT_MS) {
+        handleLogout('Session expired due to 15 minutes of inactivity.');
+      } else {
+        recordActivity();
+      }
+    }
+  });
 
   // Copy customer link button
   document.getElementById('btnCopyLink').addEventListener('click', () => {
@@ -237,13 +286,39 @@ function setupAdminEvents() {
 }
 
 // Handle Admin Login
+// Inactivity tracker helpers
+function recordActivity() {
+  lastActivityTime = Date.now();
+  try {
+    sessionStorage.setItem('showroom_last_activity', lastActivityTime.toString());
+  } catch (e) {}
+}
+
+function startInactivityTracker() {
+  if (inactivityTimer) clearInterval(inactivityTimer);
+  inactivityTimer = setInterval(() => {
+    if (!adminKey) return;
+    const idleTime = Date.now() - lastActivityTime;
+    if (idleTime >= INACTIVITY_TIMEOUT_MS) {
+      handleLogout('Session expired due to 15 minutes of inactivity.');
+    }
+  }, 10000); // Check every 10 seconds
+}
+
+function stopInactivityTracker() {
+  if (inactivityTimer) {
+    clearInterval(inactivityTimer);
+    inactivityTimer = null;
+  }
+}
+
+// Handle Admin Login
 async function handleLogin() {
   const input = document.getElementById('passcodeInput');
   const key = input ? input.value.trim() : '';
   const authCard = document.getElementById('authCard');
   const authError = document.getElementById('authError');
   const btn = document.getElementById('btnLogin');
-  const remember = document.getElementById('rememberMeCheck') ? document.getElementById('rememberMeCheck').checked : false;
 
   if (!key) {
     if (authError) {
@@ -273,13 +348,11 @@ async function handleLogin() {
     const data = await res.json();
     if (data.success) {
       adminKey = key;
-      if (remember) {
-        localStorage.setItem('showroom_admin_key', key);
-        sessionStorage.removeItem('showroom_admin_key');
-      } else {
-        sessionStorage.setItem('showroom_admin_key', key);
-        localStorage.removeItem('showroom_admin_key');
-      }
+      // Stored strictly in tab session (closes tab => automatically logs out)
+      sessionStorage.setItem('showroom_admin_key', key);
+      recordActivity();
+      startInactivityTracker();
+
       document.getElementById('authOverlay').classList.remove('active');
       if (input) input.value = '';
       checkAuthAndLoad();
@@ -311,21 +384,35 @@ async function handleLogin() {
 }
 
 // Handle Admin Logout
-function handleLogout() {
+function handleLogout(reason) {
+  stopInactivityTracker();
   sessionStorage.removeItem('showroom_admin_key');
-  localStorage.removeItem('showroom_admin_key');
+  sessionStorage.removeItem('showroom_last_activity');
+  try {
+    localStorage.removeItem('showroom_admin_key');
+  } catch (e) {}
   adminKey = '';
   allProducts = [];
+
   const tbody = document.getElementById('productTableBody');
   if (tbody) tbody.innerHTML = '';
+
   document.getElementById('authOverlay').classList.add('active');
   const input = document.getElementById('passcodeInput');
   if (input) {
     input.value = '';
     input.focus();
   }
+
   const authError = document.getElementById('authError');
-  if (authError) authError.style.display = 'none';
+  if (authError) {
+    if (reason) {
+      authError.textContent = reason;
+      authError.style.display = 'block';
+    } else {
+      authError.style.display = 'none';
+    }
+  }
 }
 
 // Authentication check & load
