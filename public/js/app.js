@@ -147,10 +147,11 @@ function updateBrandingUI(brand) {
   if (brand.address) {
     document.getElementById('footerAddress').textContent = brand.address;
   }
-  if (brand.whatsapp) {
+  const headerWa = document.getElementById('headerWhatsappBtn');
+  if (brand.whatsapp && headerWa) {
     const waClean = brand.whatsapp.replace(/[^0-9]/g, '');
     const defaultMsg = encodeURIComponent("Hello, I was viewing your online catalog and would like to inquire about your in-stock footwear.");
-    document.getElementById('headerWhatsappBtn').href = `https://wa.me/${waClean}?text=${defaultMsg}`;
+    headerWa.href = `https://wa.me/${waClean}?text=${defaultMsg}`;
   }
 
   // Live stock badge
@@ -301,9 +302,11 @@ function openLightbox(product) {
   desc.textContent = product.description || 'Premium handcrafted design available for immediate dispatch in our showroom inventory.';
 
   // Build WhatsApp Inquiry Message with Product Details
-  const waClean = (state.branding.whatsapp || '919876543210').replace(/[^0-9]/g, '');
-  const msgText = `Hello, I saw "${product.title}" (SKU: ${product.sku}) on your catalog website and I am interested in purchasing it. Is this size available?`;
-  waBtn.href = `https://wa.me/${waClean}?text=${encodeURIComponent(msgText)}`;
+  if (waBtn) {
+    const waClean = (state.branding.whatsapp || '919876543210').replace(/[^0-9]/g, '');
+    const msgText = `Hello, I saw "${product.title}" (SKU: ${product.sku}) on your catalog website and I am interested in purchasing it. Is this size available?`;
+    waBtn.href = `https://wa.me/${waClean}?text=${encodeURIComponent(msgText)}`;
+  }
 
   modal.classList.add('active');
   document.body.style.overflow = 'hidden';

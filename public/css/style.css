@@ -282,6 +282,28 @@ header.showroom-header {
   min-width: 260px;
 }
 
+@media (max-width: 640px) {
+  .control-bar {
+    padding: 14px 16px;
+    gap: 14px;
+  }
+  .search-box {
+    width: 100%;
+    min-width: 0;
+  }
+  .category-tabs {
+    width: 100%;
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    padding-bottom: 4px;
+    -webkit-overflow-scrolling: touch;
+  }
+  .cat-btn {
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+}
+
 .search-input {
   width: 100%;
   background: rgba(11, 15, 23, 0.7);
