@@ -140,6 +140,40 @@ header.showroom-header {
   margin-top: 4px;
 }
 
+/* ── Mobile Header: subtle & compact ── */
+@media (max-width: 768px) {
+  header.showroom-header {
+    padding: 12px 0;
+  }
+
+  .brand-title {
+    font-size: 1.25rem;
+    letter-spacing: 0.1em;
+  }
+
+  /* Hide the long tagline on mobile — keeps header clean */
+  .brand-subtitle {
+    display: none;
+  }
+
+  /* Shrink top-bar on mobile */
+  .top-bar {
+    font-size: 0.72rem;
+    padding: 5px 0;
+  }
+
+  /* Hide the "Direct Inquiry Desk" portion on very small screens */
+  .top-bar-content > div:last-child {
+    display: none;
+  }
+
+  /* Keep the stock badge readable but compact */
+  .badge-instock-counter {
+    font-size: 0.78rem;
+    padding: 5px 11px;
+  }
+}
+
 .header-actions {
   display: flex;
   align-items: center;
