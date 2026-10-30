@@ -1,0 +1,146 @@
+{
+  "settings": {
+    "showroomName": "AURA LUXE FOOTWEAR",
+    "tagline": "Exclusive Artisanal Footwear & Contemporary Showcase",
+    "phone": "+91 98765 43210",
+    "whatsapp": "919876543210",
+    "email": "concierge@auraluxe.com",
+    "address": "Grand Boulevard Showroom, Sector 4, Luxury Pavilion",
+    "adminPasscode": "admin123"
+  },
+  "products": [
+    {
+      "id": "prod_001",
+      "title": "Artisan Leather Stitched Slide",
+      "sku": "AL-101",
+      "category": "Men",
+      "description": "Handcrafted top-grain leather slide with ergonomic arch contouring and brass accent.",
+      "price": "₹ 2,499",
+      "image": "/uploads/images1.jpeg",
+      "inStock": true,
+      "featured": true,
+      "createdAt": "2026-10-30T05:17:51.373Z"
+    },
+    {
+      "id": "prod_002",
+      "title": "Sovereign Cross-Strap Sandal",
+      "sku": "SS-102",
+      "category": "Men",
+      "description": "Classic cross-strap slide crafted with cushioned dual-density memory sole.",
+      "price": "₹ 1,899",
+      "image": "/uploads/images2.jpeg",
+      "inStock": true,
+      "featured": false,
+      "createdAt": "2026-10-30T05:18:51.373Z"
+    },
+    {
+      "id": "prod_003",
+      "title": "Velvet Matte Urban Kolhapuri",
+      "sku": "VK-103",
+      "category": "Traditional",
+      "description": "Heritage silhouette reimagined for modern luxury with anti-slip micro-groove tread.",
+      "price": "₹ 2,199",
+      "image": "/uploads/images3.jpeg",
+      "inStock": true,
+      "featured": true,
+      "createdAt": "2026-10-30T05:19:51.373Z"
+    },
+    {
+      "id": "prod_004",
+      "title": "Royale Braided Comfort Slipper",
+      "sku": "RB-104",
+      "category": "Casual",
+      "description": "Premium braided strap finish paired with ultra-plush cloudbed cushioning.",
+      "price": "₹ 1,599",
+      "image": "/uploads/images4.jpeg",
+      "inStock": true,
+      "featured": false,
+      "createdAt": "2026-10-30T05:20:51.373Z"
+    },
+    {
+      "id": "prod_005",
+      "title": "Signature Tan Minimalist Slide",
+      "sku": "ST-105",
+      "category": "Men",
+      "description": "Bespoke Italian-style tan finish with reinforced dual edge-stitching.",
+      "price": "₹ 2,299",
+      "image": "/uploads/images5.jpeg",
+      "inStock": true,
+      "featured": true,
+      "createdAt": "2026-10-30T05:21:51.373Z"
+    },
+    {
+      "id": "prod_006",
+      "title": "Monarch Textured Casual Mules",
+      "sku": "MM-106",
+      "category": "Luxe",
+      "description": "High-density embossed textured upper with subtle burnished edges.",
+      "price": "₹ 2,699",
+      "image": "/uploads/images6.jpeg",
+      "inStock": true,
+      "featured": false,
+      "createdAt": "2026-10-30T05:22:51.373Z"
+    },
+    {
+      "id": "prod_007",
+      "title": "Aura Classic Daily Comfort",
+      "sku": "AC-107",
+      "category": "Daily",
+      "description": "Lightweight flexible sole engineered for all-day comfort without compromising elegance.",
+      "price": "₹ 1,299",
+      "image": "/uploads/images7.jpeg",
+      "inStock": true,
+      "featured": false,
+      "createdAt": "2026-10-30T05:23:51.373Z"
+    },
+    {
+      "id": "prod_008",
+      "title": "Imperial Handwoven Ethnic Kolhapuri",
+      "sku": "IH-108",
+      "category": "Traditional",
+      "description": "Intricately handwoven strap with festive metallic braiding and leather sole.",
+      "price": "₹ 3,299",
+      "image": "/uploads/images8.jpeg",
+      "inStock": true,
+      "featured": true,
+      "createdAt": "2026-10-30T05:24:51.373Z"
+    },
+    {
+      "id": "prod_009",
+      "title": "Nordic Slate Waterproof Slide",
+      "sku": "NS-109",
+      "category": "Casual",
+      "description": "Water-resistant matte composite designed for poolside and resort comfort.",
+      "price": "₹ 1,499",
+      "image": "/uploads/images9.jpeg",
+      "inStock": true,
+      "featured": false,
+      "createdAt": "2026-10-30T05:25:51.373Z"
+    },
+    {
+      "id": "prod_0010",
+      "title": "Opulent Buckle Comfort Chappal",
+      "sku": "OB-110",
+      "category": "Luxe",
+      "description": "Adjustable brushed metal buckle on supple oil-pull leather.",
+      "price": "₹ 2,799",
+      "image": "/uploads/images10.jpeg",
+      "inStock": true,
+      "featured": false,
+      "createdAt": "2026-10-30T05:26:51.373Z"
+    },
+    {
+      "id": "prod_0011",
+      "title": "Vanguard Duo-Tone Festive Sandal - Updated",
+      "sku": "VD-111",
+      "category": "Festive",
+      "description": "Striking two-tone leather weave designed for festive and occasion wear.",
+      "price": "₹ 500",
+      "image": "/uploads/images11.jpeg",
+      "inStock": true,
+      "featured": true,
+      "createdAt": "2026-10-30T05:27:51.373Z",
+      "updatedAt": "2026-10-30T06:03:09.972Z"
+    }
+  ]
+}

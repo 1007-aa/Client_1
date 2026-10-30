@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Showroom Inventory Manager | Portal</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --bg-dark: #0f172a;
+      --bg-surface: #1e293b;
+      --bg-card: rgba(30, 41, 59, 0.7);
+      --border-color: rgba(255, 255, 255, 0.08);
+      --primary: #d4af37;
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --green: #10b981;
+      --green-bg: rgba(16, 185, 129, 0.15);
+      --red: #ef4444;
+      --red-bg: rgba(239, 68, 68, 0.15);
+      --blue: #3b82f6;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: var(--bg-dark);
+      color: var(--text);
+      min-height: 100vh;
+      line-height: 1.5;
+    }
+
+    .container {
+      max-width: 1350px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+
+    header {
+      background: var(--bg-surface);
+      border-bottom: 1px solid var(--border-color);
+      padding: 16px 0;
+      margin-bottom: 24px;
+    }
+
+    .header-flex {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    .portal-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .portal-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #fff;
+    }
+    .portal-subtitle {
+      font-size: 0.8rem;
+      color: var(--primary);
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 9px 18px;
+      border-radius: 8px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.2s ease;
+      border: none;
+    }
+
+    .btn-gold {
+      background: var(--primary);
+      color: #0f172a;
+    }
+    .btn-gold:hover {
+      background: #f3e5ab;
+    }
+
+    .btn-outline {
+      background: transparent;
+      border: 1px solid var(--border-color);
+      color: var(--text);
+    }
+    .btn-outline:hover {
+      background: rgba(255, 255, 255, 0.05);
+      border-color: var(--primary);
+    }
+
+    .btn-green {
+      background: var(--green);
+      color: #fff;
+    }
+
+    .btn-edit {
+      background: rgba(212, 175, 55, 0.15);
+      border: 1px solid var(--primary);
+      color: var(--primary);
+      padding: 5px 12px;
+    }
+    .btn-edit:hover:not(:disabled) {
+      background: var(--primary);
+      color: #0f172a;
+    }
+    .btn-edit:disabled {
+      opacity: 0.35;
+      cursor: not-allowed;
+      border-color: rgba(255, 255, 255, 0.1);
+      color: var(--text-muted);
+      background: rgba(255, 255, 255, 0.03);
+    }
+    .action-cell {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* Keypass Auth Barrier */
+    .auth-overlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; width: 100vw; height: 100vh;
+      background: rgba(15, 23, 42, 0.95);
+      backdrop-filter: blur(10px);
+      z-index: 999;
+      justify-content: center;
+      align-items: center;
+    }
+    .auth-overlay.active { display: flex; }
+    .auth-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      padding: 32px;
+      max-width: 400px;
+      width: 90%;
+      text-align: center;
+    }
+
+    /* Stats Overview */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px;
+      margin-bottom: 28px;
+    }
+    .stat-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 20px;
+    }
+    .stat-label {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .stat-val {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: #fff;
+      margin-top: 6px;
+    }
+
+    /* Client Share Link Banner */
+    .share-banner {
+      background: linear-gradient(135deg, rgba(212, 175, 55, 0.12), rgba(59, 130, 246, 0.08));
+      border: 1px solid rgba(212, 175, 55, 0.3);
+      border-radius: 12px;
+      padding: 16px 20px;
+      margin-bottom: 28px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+    .share-info {
+      font-size: 0.92rem;
+      color: #fff;
+    }
+    .share-url {
+      font-family: monospace;
+      background: rgba(0,0,0,0.3);
+      padding: 4px 10px;
+      border-radius: 6px;
+      color: var(--primary);
+    }
+
+    /* Tab Controls */
+    .tabs-bar {
+      display: flex;
+      gap: 12px;
+      border-bottom: 1px solid var(--border-color);
+      margin-bottom: 24px;
+    }
+    .tab-item {
+      padding: 10px 20px;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-weight: 600;
+      border-bottom: 2px solid transparent;
+      transition: all 0.2s;
+    }
+    .tab-item.active {
+      color: var(--primary);
+      border-bottom-color: var(--primary);
+    }
+
+    /* Products Management Table */
+    .table-container {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      overflow-x: auto;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 0.9rem;
+    }
+    th {
+      background: rgba(0, 0, 0, 0.2);
+      padding: 14px 18px;
+      color: var(--text-muted);
+      font-weight: 600;
+      border-bottom: 1px solid var(--border-color);
+      text-transform: uppercase;
+      font-size: 0.78rem;
+      letter-spacing: 0.05em;
+    }
+    td {
+      padding: 14px 18px;
+      border-bottom: 1px solid var(--border-color);
+      vertical-align: middle;
+    }
+    tr:hover {
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    .prod-thumb {
+      width: 54px;
+      height: 54px;
+      border-radius: 8px;
+      object-fit: cover;
+      background: #000;
+      border: 1px solid var(--border-color);
+    }
+
+    /* Stock Toggle Switch */
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 48px;
+      height: 26px;
+    }
+    .switch input { opacity: 0; width: 0; height: 0; }
+    .slider {
+      position: absolute; cursor: pointer;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background-color: #334155;
+      transition: .3s;
+      border-radius: 26px;
+    }
+    .slider:before {
+      position: absolute; content: "";
+      height: 20px; width: 20px;
+      left: 3px; bottom: 3px;
+      background-color: white;
+      transition: .3s;
+      border-radius: 50%;
+    }
+    input:checked + .slider {
+      background-color: var(--green);
+    }
+    input:checked + .slider:before {
+      transform: translateX(22px);
+    }
+
+    .badge-status {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 700;
+    }
+    .badge-in { background: var(--green-bg); color: var(--green); }
+    .badge-out { background: var(--red-bg); color: var(--red); }
+
+    /* Modal for Add Product */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; width: 100vw; height: 100vh;
+      background: rgba(0, 0, 0, 0.85);
+      backdrop-filter: blur(8px);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+    .modal.active { display: flex; }
+    .modal-box {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      padding: 30px;
+      max-width: 600px;
+      width: 100%;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+    .form-group {
+      margin-bottom: 18px;
+    }
+    .form-group label {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+    .form-input {
+      width: 100%;
+      background: #0f172a;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 10px 14px;
+      color: #fff;
+      font-family: inherit;
+    }
+    .form-input:focus {
+      outline: none;
+      border-color: var(--primary);
+    }
+
+    .img-preview-box {
+      margin-top: 10px;
+      width: 120px;
+      height: 120px;
+      border: 1px dashed var(--border-color);
+      border-radius: 8px;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #0f172a;
+    }
+    .img-preview-box img {
+      width: 100%; height: 100%; object-fit: cover;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Auth Passcode Screen -->
+  <div class="auth-overlay active" id="authOverlay">
+    <div class="auth-card">
+      <h2 style="color: #fff; margin-bottom: 8px;">Showroom Portal Access</h2>
+      <p style="color: var(--text-muted); font-size: 0.88rem; margin-bottom: 20px;">Enter your admin keypass to manage products and stock.</p>
+      <input type="password" id="passcodeInput" class="form-input" placeholder="Enter Keypass (Default: admin123)" style="text-align: center; font-size: 1.1rem; margin-bottom: 16px;">
+      <button class="btn btn-gold" style="width: 100%; justify-content: center;" id="btnLogin">Unlock Dashboard</button>
+      <div id="authError" style="color: var(--red); font-size: 0.85rem; margin-top: 12px; display: none;">Invalid passcode. Try again.</div>
+    </div>
+  </div>
+
+  <!-- Header -->
+  <header>
+    <div class="container header-flex">
+      <div class="portal-brand">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#d4af37" stroke-width="2">
+          <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+          <line x1="8" y1="21" x2="16" y2="21"></line>
+          <line x1="12" y1="17" x2="12" y2="21"></line>
+        </svg>
+        <div>
+          <div class="portal-title">Inventory & Stock Manager</div>
+          <div class="portal-subtitle">Live Showroom Catalog Controller</div>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <a href="/" target="_blank" class="btn btn-outline">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+            <polyline points="15 3 21 3 21 9"></polyline>
+            <line x1="10" y1="14" x2="21" y2="3"></line>
+          </svg>
+          View Customer Catalog
+        </a>
+        <button class="btn btn-gold" id="btnOpenAddModal">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="12" y1="5" x2="12" y2="19"></line>
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+          </svg>
+          Add New Product
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <!-- Quick Link Sharing Helper -->
+    <div class="share-banner">
+      <div class="share-info">
+        <strong>Customer Shareable Link:</strong> Customers viewing this link only see in-stock items with 10 images per page.
+        <div style="margin-top: 6px;">
+          <span class="share-url" id="customerShareLink">http://localhost:3000/</span>
+        </div>
+      </div>
+      <button class="btn btn-outline" id="btnCopyLink">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+          <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+        </svg>
+        Copy Link for Client / Customer
+      </button>
+    </div>
+
+    <!-- Quick Stats -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-label">Total Listed Products</div>
+        <div class="stat-val" id="statTotal">--</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label" style="color: #34d399;">Visible to Customer (In Stock)</div>
+        <div class="stat-val" style="color: #34d399;" id="statInStock">--</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label" style="color: #f87171;">Hidden from Customer (Out of Stock)</div>
+        <div class="stat-val" style="color: #f87171;" id="statOutOfStock">--</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Customer Pages (10 per page)</div>
+        <div class="stat-val" id="statPages">--</div>
+      </div>
+    </div>
+
+    <!-- Tab navigation -->
+    <div class="tabs-bar">
+      <div class="tab-item active" id="tabCatalog">Products Inventory (<span id="tabCount">0</span>)</div>
+      <div class="tab-item" id="tabSettings">Showroom Details & Contact Info</div>
+    </div>
+
+    <!-- Section 1: Product Inventory Table -->
+    <div id="sectionCatalog">
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Image</th>
+              <th>Product Title & Code</th>
+              <th>Category</th>
+              <th>Price</th>
+              <th>Stock Switch (Instant Customer Visibility)</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="productsTableBody">
+            <!-- Dynamic Rows -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Section 2: Showroom Branding & Contact Settings -->
+    <div id="sectionSettings" style="display: none;">
+      <div class="modal-box" style="max-width: 700px; margin: 0 auto;">
+        <h3 style="color: #fff; margin-bottom: 20px;">Showroom Information & Customer Contact</h3>
+        <form id="settingsForm">
+          <div class="form-group">
+            <label>Showroom Name</label>
+            <input type="text" id="setBrandName" class="form-input">
+          </div>
+          <div class="form-group">
+            <label>Showroom Tagline</label>
+            <input type="text" id="setTagline" class="form-input">
+          </div>
+          <div class="form-group">
+            <label>Phone Number (for direct calling)</label>
+            <input type="text" id="setPhone" class="form-input">
+          </div>
+          <div class="form-group">
+            <label>WhatsApp Number (with country code, e.g., 919876543210)</label>
+            <input type="text" id="setWhatsapp" class="form-input">
+          </div>
+          <div class="form-group">
+            <label>Email Address</label>
+            <input type="email" id="setEmail" class="form-input">
+          </div>
+          <div class="form-group">
+            <label>Showroom Physical Address</label>
+            <input type="text" id="setAddress" class="form-input">
+          </div>
+          <div class="form-group">
+            <label>Change Admin Passcode</label>
+            <input type="text" id="setPasscode" class="form-input" placeholder="admin123">
+          </div>
+          <button type="submit" class="btn btn-gold" style="width: 100%; justify-content: center;">Save Showroom Settings</button>
+        </form>
+      </div>
+    </div>
+  </main>
+
+  <!-- Add Product Modal -->
+  <div class="modal" id="addModal">
+    <div class="modal-box">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h3 style="color: #fff;">Add New Product to Showroom</h3>
+        <button class="btn btn-outline" id="btnCloseAddModal" style="padding: 4px 10px;">&times;</button>
+      </div>
+
+      <form id="addProductForm">
+        <div class="form-group">
+          <label>Product Title *</label>
+          <input type="text" name="title" class="form-input" placeholder="e.g. Italian Tan Comfort Chappal" required>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
+          <div class="form-group">
+            <label>Article SKU / Code</label>
+            <input type="text" name="sku" class="form-input" placeholder="e.g. TC-112">
+          </div>
+          <div class="form-group">
+            <label>Category</label>
+            <input type="text" name="category" class="form-input" placeholder="e.g. Men, Casual, Ethnic">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Price Display</label>
+          <input type="text" name="price" class="form-input" placeholder="e.g. ₹ 1,999">
+        </div>
+
+        <div class="form-group">
+          <label>Short Description</label>
+          <textarea name="description" class="form-input" rows="3" placeholder="Brief description of material, comfort or craftsmanship"></textarea>
+        </div>
+
+        <div class="form-group">
+          <label>Product Image * (File Upload)</label>
+          <input type="file" name="image" id="fileInput" class="form-input" accept="image/*" required>
+          <div class="img-preview-box" id="imgPreview">
+            <span style="font-size: 0.75rem; color: var(--text-muted);">Preview</span>
+          </div>
+        </div>
+
+        <div class="form-group" style="display: flex; align-items: center; gap: 10px;">
+          <input type="checkbox" name="inStock" id="inStockCheck" checked style="width: 18px; height: 18px;">
+          <label for="inStockCheck" style="margin-bottom: 0; cursor: pointer; color: #fff;">Mark as "In Stock" immediately (visible to customer)</label>
+        </div>
+
+        <button type="submit" class="btn btn-gold" style="width: 100%; justify-content: center; margin-top: 10px;" id="btnSubmitProduct">
+          Publish Product
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Edit Product Modal (Only accessible when product is Out of Stock) -->
+  <div class="modal" id="editModal">
+    <div class="modal-box">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <div>
+          <h3 style="color: #fff;">Edit Product Details</h3>
+          <span style="font-size: 0.8rem; color: #f87171;">● Editing allowed while Out of Stock</span>
+        </div>
+        <button class="btn btn-outline" id="btnCloseEditModal" style="padding: 4px 10px;">&times;</button>
+      </div>
+
+      <form id="editProductForm">
+        <input type="hidden" name="id" id="editProductId">
+
+        <div class="form-group">
+          <label>Product Title *</label>
+          <input type="text" name="title" id="editTitle" class="form-input" required>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
+          <div class="form-group">
+            <label>Article SKU / Code</label>
+            <input type="text" name="sku" id="editSku" class="form-input">
+          </div>
+          <div class="form-group">
+            <label>Category</label>
+            <input type="text" name="category" id="editCategory" class="form-input">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Price Display</label>
+          <input type="text" name="price" id="editPrice" class="form-input">
+        </div>
+
+        <div class="form-group">
+          <label>Description</label>
+          <textarea name="description" id="editDescription" class="form-input" rows="3"></textarea>
+        </div>
+
+        <div class="form-group">
+          <label>Replace Image (Optional)</label>
+          <input type="file" name="image" id="editFileInput" class="form-input" accept="image/*">
+          <div class="img-preview-box" id="editImgPreview">
+            <img src="" id="editCurrentImg" alt="Current Image">
+          </div>
+          <span style="font-size: 0.75rem; color: var(--text-muted); margin-top: 4px; display: block;">Leave empty to keep existing image.</span>
+        </div>
+
+        <div class="form-group" style="display: flex; align-items: center; gap: 10px; margin-top: 10px;">
+          <input type="checkbox" name="inStock" id="editInStockCheck" style="width: 18px; height: 18px;">
+          <label for="editInStockCheck" style="margin-bottom: 0; cursor: pointer; color: #fff;">Put back into stock upon saving (make visible to customers)</label>
+        </div>
+
+        <button type="submit" class="btn btn-gold" style="width: 100%; justify-content: center; margin-top: 10px;" id="btnSubmitEdit">
+          Save & Update Product
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <script src="/js/admin.js"></script>
+</body>
+</html>
